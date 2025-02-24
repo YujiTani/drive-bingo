@@ -21,7 +21,7 @@ export type useMarkerManagerProps = {
 export const useMarkerManager = () => {
   const { createCustomPin } = useMarkerUtils()
   const [markers, setMarkers] = useState<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map())
-
+  
   const addMarker = useCallback(
     async({map, location, markerId, options}: useMarkerManagerProps) => {
       if(!map || markers.has(markerId)) return;
@@ -39,6 +39,17 @@ export const useMarkerManager = () => {
     [markers, createCustomPin]
   )
 
+  const updateMarker = useCallback(
+    async({location, markerId, options}: Omit<useMarkerManagerProps, 'map'>) => {
+    if (!markers.has(markerId)) return;
+      
+    const marker = markers.get(markerId)
+    if (marker) {
+      marker.position = location
+      marker.content = createCustomPin(options)
+    }
+  }, [markers, createCustomPin])
+
   const removeMaker = useCallback((markerId: string) => {
     setMarkers((prev) => {
       const newMarkers = new Map(prev)
@@ -51,6 +62,10 @@ export const useMarkerManager = () => {
     })
   }, [])
 
+  const getMarker = useCallback((markerId: string): boolean => {
+    return markers.has(markerId)
+  }, [markers])
+
   useEffect(() => {
     return () => {
       markers.forEach((marker) => {
@@ -59,7 +74,7 @@ export const useMarkerManager = () => {
     }
   }, [markers])
 
-  return { addMarker, removeMaker }
+  return { addMarker, removeMaker, getMarker, updateMarker }
 }
 
 export default useMarkerManager

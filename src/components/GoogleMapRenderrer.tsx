@@ -28,17 +28,22 @@ const options: MarkerStyleOptions[] = [
   }
 ]
 
+const IDs = {
+  mapId: 'DRIVE_BINGO_MAP',
+  currentMarkerId: 'userCurrentLocationMarker',
+  selectedMarkerId: 'selectedLocationMarker',
+}
+
 /**
  * GoogleMapを描画するコンポーネント
  * @param userCurrentLocation ユーザーの現在地
  * @param zoom 地図のズーム
  */
-const GoogleMapRenderer = ({ userCurrentLocation, zoom }: GoogleMapRendererProps) => {
-  const mapId = 'DRIVE_BINGO_MAP'
+const GoogleMapRenderer = ({ userCurrentLocation, zoom, IDs }: GoogleMapRendererProps) => {
   const mapRef = useRef<HTMLDivElement>(null)
-  const { map, setContainer } = useInitMap({ userCurrentLocation, zoom, mapId })
-  const { addMarker} = useMarkerManager()
-  addMarker({ map, location: userCurrentLocation, markerId: 'userCurrentLocationMarker', options: options[0] })
+  const { map, setContainer } = useInitMap({ userCurrentLocation, zoom, mapId: IDs.mapId })
+  const { addMarker, getMarker, updateMarker } = useMarkerManager()
+  addMarker({ map, location: userCurrentLocation, markerId: IDs.currentMarkerId, options: options[0] })
   
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLngLiteral | null>(null)
@@ -77,8 +82,13 @@ const GoogleMapRenderer = ({ userCurrentLocation, zoom }: GoogleMapRendererProps
   const handleClickConfirmationModal = () => {
     if (!selectedLocation) return
 
+    if (getMarker(IDs.selectedMarkerId)) {
+      updateMarker({ location: selectedLocation, markerId: IDs.selectedMarkerId, options: options[1] })
+    } else {
+      addMarker({ map, location: selectedLocation, markerId: IDs.selectedMarkerId, options: options[1] })
+    }
+
     setShowConfirmation(false)
-    addMarker({ map, location: selectedLocation, markerId: 'selectedLocationMarker', options: options[1] })
   }
   
   return (
