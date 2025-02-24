@@ -39,7 +39,7 @@ const IDs = {
  * @param userCurrentLocation ユーザーの現在地
  * @param zoom 地図のズーム
  */
-const GoogleMapRenderer = ({ userCurrentLocation, zoom, IDs }: GoogleMapRendererProps) => {
+const GoogleMapRenderer = ({ userCurrentLocation, zoom }: GoogleMapRendererProps) => {
   const mapRef = useRef<HTMLDivElement>(null)
   const { map, setContainer } = useInitMap({ userCurrentLocation, zoom, mapId: IDs.mapId })
   const { addMarker, getMarker, updateMarker } = useMarkerManager()
