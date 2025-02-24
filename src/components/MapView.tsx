@@ -20,7 +20,7 @@ type MapViewProps = {
 const MapView = ({ userCurrentLocation }: MapViewProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   // TODO: ユーザーの現在地を取得するロジックに変更する
-  const zoom = 10
+  const zoom = 13
 
   if (!apiKey) {
     console.error("Google Maps API Key is not set");
