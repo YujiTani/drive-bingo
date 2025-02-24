@@ -1,6 +1,6 @@
 'use client'
 
-import DestinationSetter from "@/components/DestinationSetter";
+import MapView from "@/components/DestinationSetter";
 import { useState } from "react";
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
       目的地を設定
      </button>
      {showDestinationSetter && (
-      <DestinationSetter />
+      <MapView />
      )}
     </main>
   );
