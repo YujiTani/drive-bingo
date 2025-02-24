@@ -1,40 +1,41 @@
-import React from 'react';
+import { useEffect, useRef } from 'react'
+
+import useInitMap from '@/hooks/useInitMap'
+import { useAddLocationMarker } from '@/hooks/useAddLocationMarker'
 
 /**
  * GoogleMapを描画するコンポーネントのprops
- * @param center 地図の中心
+ * @param userCurrentLocation ユーザーの現在地
  * @param zoom 地図のズーム
  */
 export type GoogleMapRendererProps = {
-    center: google.maps.LatLngLiteral;
-    zoom: number;
-  }
-  
-  /**
-   * GoogleMapを描画するコンポーネント
-   * @param center 地図の中心
-   * @param zoom 地図のズーム
-   */
-  const GoogleMapRenderer = ({ center, zoom }: GoogleMapRendererProps) => {
-      const ref = React.useRef<HTMLDivElement>(null);
-    
-      // マップインスタンスを状態管理
-      const [map, setMap] = React.useState<google.maps.Map | null>(null);
-    
-      React.useEffect(() => {
-        if (ref.current && !map) {
-          const newMap = new window.google.maps.Map(ref.current, {
-            center,
-            zoom,
-            disableDefaultUI: true,  // デフォルトUI非表示
-            gestureHandling: "greedy" // タッチ操作最適化
-          });
-          setMap(newMap);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
-    
-      return <div ref={ref} style={{ height: '100%', width: '100%' }} />;
-  };
+  userCurrentLocation: google.maps.LatLngLiteral
+  zoom: number
+}
+
+/**
+ * GoogleMapを描画するコンポーネント
+ * @param userCurrentLocation ユーザーの現在地
+ * @param zoom 地図のズーム
+ */
+const GoogleMapRenderer = ({ userCurrentLocation, zoom }: GoogleMapRendererProps) => {
+  const mapId = 'DRIVE_BINGO_MAP'
+  const mapRef = useRef<HTMLDivElement>(null)
+  const { map, setContainer } = useInitMap({userCurrentLocation, zoom, mapId})
+  useAddLocationMarker({map, userCurrentLocation})
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setContainer(mapRef.current)
+    }
+  }, [mapRef, setContainer])
+
+  return (
+    <div 
+      ref={mapRef} 
+      style={{ height: '100%', width: '100%' }}
+    />
+  )
+}
 
 export default GoogleMapRenderer

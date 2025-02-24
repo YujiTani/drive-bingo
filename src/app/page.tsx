@@ -1,6 +1,6 @@
 'use client'
 
-import MapView from "@/components/DestinationSetter";
+import MapView from "@/components/MapView";
 import { useState } from "react";
 
 export default function Home() {

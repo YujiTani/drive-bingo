@@ -31,3 +31,21 @@ body {
     text-wrap: balance;
   }
 }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-bounce {
+  animation: bounce 1.5s infinite;
+}
+
+.gmp-clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.gmp-clickable:hover {
+  transform: scale(1.2);
+}
