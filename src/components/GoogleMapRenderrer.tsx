@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 import useInitMap from '@/hooks/useInitMap'
-import { useAddLocationMarker } from '@/hooks/useAddLocationMarker'
+import { useMarkerManager } from '@/hooks/useMarkerManager'
+import ConfirmationModal from '@/components/ConfirmationModal'
+import { MarkerStyleOptions } from '@/hooks/useMarkerUtils'
 
 /**
  * GoogleMapを描画するコンポーネントのprops
@@ -13,6 +15,19 @@ export type GoogleMapRendererProps = {
   zoom: number
 }
 
+const options: MarkerStyleOptions[] = [
+  {
+    color: '#4285F4',
+    size: 48,
+    animation: 'animate-bounce'
+  },
+  {
+    color: '#FF6B6B',
+    size: 48,
+    animation: 'animate-bounce'
+  }
+]
+
 /**
  * GoogleMapを描画するコンポーネント
  * @param userCurrentLocation ユーザーの現在地
@@ -21,80 +36,61 @@ export type GoogleMapRendererProps = {
 const GoogleMapRenderer = ({ userCurrentLocation, zoom }: GoogleMapRendererProps) => {
   const mapId = 'DRIVE_BINGO_MAP'
   const mapRef = useRef<HTMLDivElement>(null)
-  const { map, setContainer } = useInitMap({userCurrentLocation, zoom, mapId})
-  useAddLocationMarker({map, userCurrentLocation})
-
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLngLiteral | null>(null);
-
+  const { map, setContainer } = useInitMap({ userCurrentLocation, zoom, mapId })
+  const { addMarker} = useMarkerManager()
+  addMarker({ map, location: userCurrentLocation, markerId: 'userCurrentLocationMarker', options: options[0] })
+  
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLngLiteral | null>(null)
+  
   useEffect(() => {
     if (mapRef.current) {
       setContainer(mapRef.current)
     }
   }, [mapRef, setContainer])
-
-  useEffect(() => {
-    if (!map) return;
   
+  useEffect(() => {
+    if (!map) return
+    
     // Google Maps APIのネイティブクリックイベントを使用
-    const clickListener = map.addListener('click', (e) => {
+    const clickListener = map.addListener('click', (e: google.maps.MapMouseEvent) => {
       if (e.latLng) {
         setSelectedLocation({
           lat: e.latLng.lat(),
-          lng: e.latLng.lng()
-        });
-        setShowConfirmation(true);
+          lng: e.latLng.lng(),
+        })
+        setShowConfirmation(true)
       }
-    });
-  
+    })
+    
     // ダブルクリックイベントの無効化
     map.setOptions({
       disableDoubleClickZoom: true,
-      gestureHandling: 'cooperative'
-    });
-  
+      gestureHandling: 'cooperative',
+    })
+    
     return () => {
-      google.maps.event.removeListener(clickListener);
-    };
-  }, [map]);
+      google.maps.event.removeListener(clickListener)
+    }
+  }, [map])
+  
+  const handleClickConfirmationModal = () => {
+    if (!selectedLocation) return
 
+    setShowConfirmation(false)
+    addMarker({ map, location: selectedLocation, markerId: 'selectedLocationMarker', options: options[1] })
+  }
+  
   return (
     <>
-      <div 
-        ref={mapRef} 
-        style={{ height: '100%', width: '100%' }}
-      />
-      
+      <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
       {showConfirmation && selectedLocation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">目的地の確認</h3>
-            <p className="mb-4">
-              この位置を目的地に設定しますか？
-              <br />
-              緯度: {selectedLocation.lat.toFixed(5)}
-              <br />
-              経度: {selectedLocation.lng.toFixed(5)}
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowConfirmation(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
-              >
-                キャンセル
-              </button>
-              <button
-                onClick={() => {
-                  // ここに確定処理を追加
-                  setShowConfirmation(false);
-                }}
-                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded"
-              >
-                確定
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          isOpen={showConfirmation}
+          location={selectedLocation}
+          onConfirm={handleClickConfirmationModal}
+          onCancel={() => setShowConfirmation(false)}
+        />
       )}
     </>
   )

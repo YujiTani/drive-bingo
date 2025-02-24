@@ -1,11 +1,22 @@
 import { useCallback } from 'react';
 
-type MarkerStyleOptions = {
+
+/**
+ * マーカーのスタイルオプション
+ * @param color マーカーの色
+ * @param size マーカーのサイズ
+ * @param animation マーカーのアニメーション
+ */
+export type MarkerStyleOptions = {
   color?: string;
   size?: number;
   animation?: string;
 };
 
+/**
+ * カスタムマーカーを作成するフック
+ * @returns カスタムマーカー
+ */
 const useMarkerUtils = () => {
   const createCustomPin = useCallback((options: MarkerStyleOptions = {}) => {
     const {

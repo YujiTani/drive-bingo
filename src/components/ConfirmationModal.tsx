@@ -1,10 +1,22 @@
-interface ConfirmationModalProps {
+import React from 'react'
+/**
+ * 目的地設置時の確認モーダルのprops
+ */
+type ConfirmationModalProps = {
   isOpen: boolean;
   location: google.maps.LatLngLiteral | null;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
+/**
+ * 目的地設置時の確認モーダル
+ * @param isOpen モーダルが開いているかどうか
+ * @param location 目的地の位置
+ * @param onConfirm 確定ボタンを押したときの処理
+ * @param onCancel キャンセルボタンを押したときの処理
+ * @returns 
+ */
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ 
   isOpen, 
   location, 
@@ -42,3 +54,5 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     </div>
   );
 }; 
+
+export default ConfirmationModal;
