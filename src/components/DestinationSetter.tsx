@@ -37,7 +37,12 @@ const DestinationSetter = () => {
   )
 }
 
-const GoogleMap = ({ center, zoom }) => {
+type GoogleMapProps = {
+  center: google.maps.LatLngLiteral;
+  zoom: number;
+}
+
+const GoogleMap = ({ center, zoom }: GoogleMapProps) => {
     const ref = React.useRef<HTMLDivElement>(null);
   
     React.useEffect(() => {
